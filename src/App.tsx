@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, Package, ShoppingCart, Plus, Minus, Trash2, MoveRight, GripVertical, Download } from 'lucide-react';
+import { Truck, Package, ShoppingCart, Plus, Minus, Trash2, MoveRight, GripVertical, Download, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface ProductConfig {
   name: string;
@@ -208,6 +208,19 @@ export default function App() {
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
+  };
+
+  const moveProduct = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= productList.length) return;
+
+    const updated = [...productList];
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+
+    setProductList(updated);
+    localStorage.setItem('vanBeverageProductsConfig', JSON.stringify(updated));
   };
 
   // DOWNLOAD SPREADSHEET OPTION (TABULAR CSV SEPARATED BY SIZE WITH PRODUCT TOTALS & COLUMN GRAND TOTALS)
@@ -784,7 +797,7 @@ export default function App() {
 
           {/* Mobile Cards (Splitting Pieces to the end of card) */}
           <div className="space-y-3.5 md:hidden">
-            {productList.map((product) => {
+            {productList.map((product, index) => {
               const colorClass = getProductColors(product.name);
               const activeProductDraft = product.sizes.some(size => (currentDraft[`${product.name}_${size}`] || 0) > 0) || (currentDraft[`${product.name}_pcs`] || 0) > 0;
               const rowPieces = currentDraft[`${product.name}_pcs`] || 0;
@@ -803,13 +816,45 @@ export default function App() {
                       <span className="font-black text-base tracking-wide uppercase text-neutral-200">{product.name}</span>
                     </div>
                     
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveProduct(product.name)}
-                      className="text-neutral-600 hover:text-red-400 p-1.5 hover:bg-neutral-955 rounded-lg transition-colors active:scale-90"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      {/* Reorder Up */}
+                      <button
+                        type="button"
+                        onClick={() => moveProduct(index, 'up')}
+                        disabled={index === 0}
+                        className={`p-1.5 bg-neutral-955 rounded-lg border transition-all active:scale-90 ${
+                          index === 0
+                            ? 'border-neutral-850 text-neutral-800 cursor-not-allowed'
+                            : 'border-neutral-800 text-neutral-450 hover:text-emerald-400 hover:border-emerald-500/20'
+                        }`}
+                        title="Move Up"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Reorder Down */}
+                      <button
+                        type="button"
+                        onClick={() => moveProduct(index, 'down')}
+                        disabled={index === productList.length - 1}
+                        className={`p-1.5 bg-neutral-955 rounded-lg border transition-all active:scale-90 ${
+                          index === productList.length - 1
+                            ? 'border-neutral-850 text-neutral-800 cursor-not-allowed'
+                            : 'border-neutral-800 text-neutral-450 hover:text-emerald-400 hover:border-emerald-500/20'
+                        }`}
+                        title="Move Down"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveProduct(product.name)}
+                        className="text-neutral-600 hover:text-red-400 p-1.5 hover:bg-neutral-955 rounded-lg transition-colors active:scale-90 ml-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Mobile Adjusters */}
