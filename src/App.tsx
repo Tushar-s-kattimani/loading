@@ -59,6 +59,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'products' | 'summary'>('products');
   const [showSwapOptions, setShowSwapOptions] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [printActive, setPrintActive] = useState(false);
 
   // Sync saved draft quantities to localStorage
   useEffect(() => {
@@ -288,168 +289,13 @@ export default function App() {
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Pop-up blocker is preventing PDF download. Please allow pop-ups for this site.');
-      return;
-    }
-
-    // Headers list for PDF grid
-    let tableHeaderCols = uniqueSizes.map(size => `<th style="border: 1px solid #e5e7eb; padding: 12px; text-align: center; background-color: #f9fafb; font-size: 10px; text-transform: uppercase; font-weight: 800; color: #4b5563;">${size} Box</th>`).join('');
-
-    // Beverage Rows matching the size columns
-    let tableRows = activeProducts.map(p => {
-      let cols = uniqueSizes.map(size => {
-        const qty = currentDraft[`${p.name}_${size}`] || 0;
-        return `<td style="border: 1px solid #e5e7eb; padding: 12px; text-align: center; font-weight: 750; font-size: 13px; color: ${qty > 0 ? '#111827' : '#9ca3af'};">${qty > 0 ? qty : '—'}</td>`;
-      }).join('');
-      
-      const pieces = currentDraft[`${p.name}_pcs`] || 0;
-      
-      return `
-        <tr>
-          <td style="border: 1px solid #e5e7eb; padding: 12px; font-weight: 800; text-transform: uppercase; font-size: 13px; color: #111827; background-color: #fafafa; letter-spacing: 0.2px;">${p.name}</td>
-          ${cols}
-          <td style="border: 1px solid #e5e7eb; padding: 12px; text-align: center; font-weight: 850; font-size: 13px; color: ${pieces > 0 ? '#b45309' : '#9ca3af'}; background-color: #fef3c7;">${pieces > 0 ? pieces : '—'}</td>
-        </tr>
-      `;
-    }).join('');
-
-    // Separated size totals at the bottom
-    let totalsCols = uniqueSizes.map(size => {
-      let sizeTotal = 0;
-      activeProducts.forEach(p => {
-        sizeTotal += currentDraft[`${p.name}_${size}`] || 0;
-      });
-      return `<td style="border: 2px solid #111827; padding: 12px; text-align: center; font-weight: 900; font-size: 15px; background-color: #ecfdf5; color: #059669;">${sizeTotal} Bx</td>`;
-    }).join('');
-
-    // Total loose pieces bottom sum
-    let grandPiecesTotal = 0;
-    activeProducts.forEach(p => {
-      grandPiecesTotal += currentDraft[`${p.name}_pcs`] || 0;
-    });
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Van Load Sheet - ${loadType}</title>
-        <style>
-          body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 40px;
-            color: #1f2937;
-          }
-          .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 4px solid #10b981;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-          }
-          .title {
-            margin: 0;
-            font-size: 30px;
-            font-weight: 900;
-            letter-spacing: -0.8px;
-            color: #111827;
-            text-transform: uppercase;
-          }
-          .subtitle {
-            margin: 4px 0 0 0;
-            font-size: 12px;
-            font-weight: 800;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-          }
-          .meta-info {
-            text-align: right;
-          }
-          .meta-label {
-            font-size: 10px;
-            color: #9ca3af;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-          }
-          .meta-value {
-            font-size: 15px;
-            font-weight: 800;
-            color: #111827;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 35px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-          }
-          .footer-note {
-            margin-top: 60px;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 15px;
-            font-size: 10px;
-            color: #9ca3af;
-            text-align: center;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header-container">
-          <div>
-            <h1 class="title">VAN LOAD ORDER SHEET</h1>
-            <p class="subtitle">Fast Crate & Bottle Loading Report</p>
-          </div>
-          <div class="meta-info">
-            <div class="meta-label">Selected load</div>
-            <div class="meta-value" style="color: #059669; font-size: 18px;">${loadType}</div>
-            <div class="meta-label">Generated Date</div>
-            <div class="meta-value">${new Date().toLocaleString()}</div>
-          </div>
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; background-color: #f9fafb; font-size: 11px; text-transform: uppercase; font-weight: 800; color: #4b5563; width: 30%;">Product</th>
-              ${tableHeaderCols}
-              <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: center; background-color: #fffbeb; font-size: 11px; text-transform: uppercase; font-weight: 850; color: #b45309; width: 15%;">Loose Pieces (Pcs)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tableRows}
-            <tr style="background-color: #fafafa;">
-              <td style="border: 2px solid #111827; padding: 12px; font-weight: 900; text-transform: uppercase; background-color: #f3f4f6; color: #111827; font-size: 13px;">TOTAL LOAD</td>
-              ${totalsCols}
-              <td style="border: 2px solid #b45309; padding: 12px; text-align: center; font-weight: 900; font-size: 15px; background-color: #fffbeb; color: #b45309;">${grandPiecesTotal} Pcs</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="footer-note">
-          Factory Dispatch Operations &bull; Generated Natively via Van Load Order App
-        </div>
-
-        <script>
-          window.onload = function() {
-            window.print();
-            setTimeout(function() { window.close(); }, 500);
-          };
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    setPrintActive(true);
+    
+    // Allow state change to render container in DOM before printing
+    setTimeout(() => {
+      window.print();
+      setPrintActive(false);
+    }, 250);
   };
 
   // Add custom size entered by user permanently into availableSizes master checklist
@@ -1316,6 +1162,106 @@ export default function App() {
         </button>
 
       </nav>
+
+      {/* Hidden Print Container for Mobile & Desktop PDF Exports */}
+      {printActive && (
+        <>
+          <style dangerouslySetInnerHTML={{ __html: `
+            @media print {
+              body {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 10px !important;
+              }
+              /* Completely hide main application wrapper to avoid overlapping pages */
+              #root > div:not(#print-section) {
+                display: none !important;
+              }
+              #print-section {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+              }
+            }
+          `}} />
+          <div id="print-section" className="hidden print:block bg-white text-black p-8 w-full font-sans absolute left-0 top-0 z-50">
+            <div className="flex justify-between items-center border-b-4 border-emerald-500 pb-4 mb-6">
+              <div>
+                <h1 className="text-2xl font-black uppercase tracking-tight text-neutral-900">VAN LOAD ORDER SHEET</h1>
+                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">Fast Crate & Bottle Loading Report</p>
+              </div>
+              <div className="text-right">
+                <div className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Selected Load</div>
+                <div className="text-emerald-600 font-black text-base uppercase leading-none">{loadType}</div>
+                <div className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider mt-1.5">Generated Date</div>
+                <div className="text-xs font-bold text-neutral-800">{new Date().toLocaleString()}</div>
+              </div>
+            </div>
+
+            <table className="w-full border-collapse border border-neutral-200">
+              <thead>
+                <tr className="bg-neutral-50">
+                  <th className="border border-neutral-200 p-2.5 text-left text-[10px] font-black uppercase text-neutral-600 w-[30%]">Product</th>
+                  {uniqueSizes.map(size => (
+                    <th key={size} className="border border-neutral-200 p-2 text-center text-[10px] font-black uppercase text-neutral-600">{size} Box</th>
+                  ))}
+                  <th className="border border-neutral-200 p-2 text-center text-[10px] font-black uppercase text-amber-700 bg-amber-50/50 w-[15%]">Loose (Pcs)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productList.filter(p => {
+                  const hasCrates = uniqueSizes.some(size => (currentDraft[`${p.name}_${size}`] || 0) > 0);
+                  const hasLoose = (currentDraft[`${p.name}_pcs`] || 0) > 0;
+                  return hasCrates || hasLoose;
+                }).map(p => {
+                  const pieces = currentDraft[`${p.name}_pcs`] || 0;
+                  return (
+                    <tr key={p.name}>
+                      <td className="border border-neutral-200 p-2.5 text-xs font-black uppercase text-neutral-800 bg-neutral-50">{p.name}</td>
+                      {uniqueSizes.map(size => {
+                        const qty = currentDraft[`${p.name}_${size}`] || 0;
+                        return (
+                          <td key={size} className={`border border-neutral-200 p-2 text-center text-xs font-bold ${qty > 0 ? 'text-neutral-900' : 'text-neutral-400'}`}>
+                            {qty > 0 ? qty : '—'}
+                          </td>
+                        );
+                      })}
+                      <td className={`border border-neutral-200 p-2 text-center text-xs font-black bg-amber-50 ${pieces > 0 ? 'text-amber-800' : 'text-neutral-400'}`}>
+                        {pieces > 0 ? pieces : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+                
+                {/* Grand totals row */}
+                <tr className="bg-neutral-50 font-black">
+                  <td className="border-2 border-neutral-900 p-2.5 text-xs font-black uppercase text-neutral-900">TOTAL LOAD</td>
+                  {uniqueSizes.map(size => {
+                    let sizeTotal = productList.reduce((sum, p) => sum + (currentDraft[`${p.name}_${size}`] || 0), 0);
+                    return (
+                      <td key={size} className="border-2 border-neutral-900 p-2 text-center text-xs font-black text-emerald-600 bg-emerald-50/30">
+                        {sizeTotal} Bx
+                      </td>
+                    );
+                  })}
+                  <td className="border-2 border-amber-600 p-2 text-center text-xs font-black text-amber-700 bg-amber-50">
+                    {totalPiecesSum} Pcs
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="mt-12 border-t border-neutral-200 pt-4 text-center text-[9px] text-neutral-400 font-bold uppercase tracking-wider">
+              Factory Dispatch Operations • Generated Natively via Van Load Order App
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   );
