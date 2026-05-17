@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, Package, ShoppingCart, Plus, Minus, Trash2, Save, MoveRight, GripVertical, Download } from 'lucide-react';
+import { Truck, Package, ShoppingCart, Plus, Minus, Trash2, MoveRight, GripVertical, Download } from 'lucide-react';
 
 interface ProductConfig {
   name: string;
@@ -159,19 +159,7 @@ export default function App() {
     }
   };
 
-  const handleSaveLoad = () => {
-    const activeItems = Object.entries(currentDraft).map(([key, qty]) => {
-      const [product, size] = key.split('_');
-      return { product, size, quantity: qty };
-    });
 
-    if (activeItems.length === 0) {
-      alert('Cannot save an empty load. Please add some products first.');
-      return;
-    }
-
-    alert(`${loadType} saved successfully! Active inputs are preserved so you can keep working or exporting.`);
-  };
 
   // Move items from current load to another load (swapping items action)
   const handleTransferItems = (targetLoad: 'Load 1' | 'Load 2' | 'Load 3') => {
@@ -950,7 +938,7 @@ export default function App() {
 
           {/* Mobile Cards (Splitting Pieces to the end of card) */}
           <div className="space-y-3.5 md:hidden">
-            {productList.map((product, index) => {
+            {productList.map((product) => {
               const colorClass = getProductColors(product.name);
               const activeProductDraft = product.sizes.some(size => (currentDraft[`${product.name}_${size}`] || 0) > 0) || (currentDraft[`${product.name}_pcs`] || 0) > 0;
               const rowPieces = currentDraft[`${product.name}_pcs`] || 0;
