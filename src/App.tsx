@@ -1220,8 +1220,8 @@ export default function App() {
                 padding: 20px !important;
                 font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
               }
-              /* Completely hide main application wrapper to avoid overlapping pages */
-              #root > div:not(#print-section) {
+              /* Hide all normal layout containers during printing */
+              header, main, nav {
                 display: none !important;
               }
               #print-section {
