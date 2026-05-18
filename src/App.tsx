@@ -60,6 +60,7 @@ export default function App() {
   const [showSwapOptions, setShowSwapOptions] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [printActive, setPrintActive] = useState(false);
+  const [qtyStep, setQtyStep] = useState<1 | 5 | 10>(1);
 
   // Sync saved draft quantities to localStorage
   useEffect(() => {
@@ -575,8 +576,8 @@ export default function App() {
           </div>
 
           {/* Load Beverage Stock matrix grid */}
-          <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between border-b border-neutral-800 pb-2 flex-wrap gap-2">
+            <div className="flex items-center gap-3 flex-wrap">
               <h2 className="text-base font-black uppercase tracking-wider text-neutral-300">Load Beverage Stock</h2>
               
               {/* CLEAR OPTION IN FRONT OF THE HEADING */}
@@ -584,7 +585,7 @@ export default function App() {
                 type="button"
                 onClick={handleClearLoad}
                 disabled={activeItems.length === 0}
-                className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all active:scale-95 flex items-center gap-1 ${
+                className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all active:scale-95 flex items-center gap-1 shrink-0 ${
                   activeItems.length === 0
                     ? 'border-neutral-850 text-neutral-700 bg-neutral-955/20 cursor-not-allowed'
                     : 'border-red-500/30 hover:border-red-500/50 bg-red-500/5 hover:bg-red-500/10 text-red-400'
@@ -593,6 +594,28 @@ export default function App() {
               >
                 <Trash2 className="w-3 h-3" /> Clear Load
               </button>
+
+              {/* Segmented Increment Step Selector */}
+              <div className="flex bg-neutral-955 border border-neutral-850 p-0.5 rounded-xl shrink-0 shadow-inner">
+                <span className="hidden sm:inline-block text-[9px] text-neutral-500 font-bold uppercase tracking-wider px-2 py-1 self-center">Increment Step:</span>
+                {[1, 5, 10].map((step) => {
+                  const isActive = qtyStep === step;
+                  return (
+                    <button
+                      key={step}
+                      type="button"
+                      onClick={() => setQtyStep(step as any)}
+                      className={`px-2.5 py-1 rounded-lg font-black text-[10px] uppercase transition-all active:scale-95 ${
+                        isActive
+                          ? 'bg-emerald-500 text-neutral-955 shadow-sm'
+                          : 'text-neutral-500 hover:text-neutral-355'
+                      }`}
+                    >
+                      {step === 1 ? '±1' : `±${step}`}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <span className="text-neutral-500 text-[10px] font-semibold uppercase hidden lg:inline">Sizes fit inline to save space</span>
           </div>
@@ -608,14 +631,14 @@ export default function App() {
                   </th>
                   {/* Standard Box columns */}
                   {uniqueSizes.map(size => (
-                    <th key={size} className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[140px]">
+                    <th key={size} className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[98px]">
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-400">
                         {size} Bx
                       </span>
                     </th>
                   ))}
                   {/* SINGLE PIECES COLUMN IN FRONT OF TOTAL */}
-                  <th className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[140px] border-l border-neutral-800">
+                  <th className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[98px] border-l border-neutral-800">
                     <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/10 text-amber-400">
                       Pieces (Pcs)
                     </span>
@@ -679,7 +702,7 @@ export default function App() {
                         
                         if (!hasSize) {
                           return (
-                            <td key={size} className="p-2 text-center w-[140px]">
+                            <td key={size} className="p-2 text-center w-[98px]">
                               <span className="text-neutral-850 font-bold select-none text-[10px]">—</span>
                             </td>
                           );
@@ -688,13 +711,13 @@ export default function App() {
                         const key = `${product.name}_${size}`;
                         const qty = currentDraft[key] || 0;
                         return (
-                          <td key={size} className="p-2 text-center w-[140px]">
-                            <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all gap-1 ${
+                          <td key={size} className="p-2 text-center w-[98px]">
+                            <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all ${
                               qty > 0 ? 'bg-neutral-955 border-emerald-500/30' : 'bg-neutral-955/50 border-neutral-850'
                             }`}>
                               <button
                                 type="button"
-                                onClick={() => updateQuantity(product.name, size, -1)}
+                                onClick={() => updateQuantity(product.name, size, -qtyStep)}
                                 className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all active:scale-90 ${
                                   qty > 0 
                                     ? 'bg-neutral-900 border-neutral-750 text-neutral-350 hover:bg-neutral-800' 
@@ -702,7 +725,7 @@ export default function App() {
                                 }`}
                                 disabled={qty === 0}
                               >
-                                <Minus className="w-3 h-3" />
+                                {qtyStep === 1 ? <Minus className="w-3 h-3" /> : <span className="text-[9px] font-black">-{qtyStep}</span>}
                               </button>
 
                               <span className={`w-6 text-center text-xs font-black tracking-tight ${qty > 0 ? 'text-emerald-400' : 'text-neutral-600'}`}>
@@ -711,26 +734,10 @@ export default function App() {
 
                               <button
                                 type="button"
-                                onClick={() => updateQuantity(product.name, size, 1)}
-                                className={`w-7 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-white hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750 text-neutral-550`}
+                                onClick={() => updateQuantity(product.name, size, qtyStep)}
+                                className="w-7 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-white hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750 text-neutral-550"
                               >
-                                <Plus className="w-3 h-3" />
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => updateQuantity(product.name, size, 5)}
-                                className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-emerald-450 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
-                              >
-                                +5
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => updateQuantity(product.name, size, 10)}
-                                className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-emerald-450 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
-                              >
-                                +10
+                                {qtyStep === 1 ? <Plus className="w-3 h-3" /> : <span className="text-[9px] font-black">+{qtyStep}</span>}
                               </button>
                             </div>
                           </td>
@@ -738,13 +745,13 @@ export default function App() {
                       })}
 
                       {/* SINGLE PIECES ADJUSTER IN FRONT OF TOTAL (PEACES) */}
-                      <td className="p-2 text-center w-[140px] border-l border-neutral-800 bg-amber-500/5">
-                        <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all gap-1 ${
+                      <td className="p-2 text-center w-[98px] border-l border-neutral-800 bg-amber-500/5">
+                        <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all ${
                           rowPieces > 0 ? 'bg-neutral-955 border-amber-500/30' : 'bg-neutral-955/50 border-neutral-850'
                         }`}>
                           <button
                             type="button"
-                            onClick={() => updateQuantity(product.name, 'pcs', -1)}
+                            onClick={() => updateQuantity(product.name, 'pcs', -qtyStep)}
                             className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all active:scale-90 ${
                               rowPieces > 0 
                                 ? 'bg-neutral-900 border-neutral-750 text-neutral-350 hover:bg-neutral-800' 
@@ -752,7 +759,7 @@ export default function App() {
                             }`}
                             disabled={rowPieces === 0}
                           >
-                            <Minus className="w-3 h-3" />
+                            {qtyStep === 1 ? <Minus className="w-3 h-3" /> : <span className="text-[9px] font-black">-{qtyStep}</span>}
                           </button>
 
                           <span className={`w-6 text-center text-xs font-black tracking-tight ${rowPieces > 0 ? 'text-amber-400' : 'text-neutral-655'}`}>
@@ -761,26 +768,10 @@ export default function App() {
 
                           <button
                             type="button"
-                            onClick={() => updateQuantity(product.name, 'pcs', 1)}
-                            className={`w-7 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-white hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750 text-neutral-550`}
+                            onClick={() => updateQuantity(product.name, 'pcs', qtyStep)}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-white hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750 text-neutral-550"
                           >
-                            <Plus className="w-3 h-3" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(product.name, 'pcs', 5)}
-                            className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-amber-500 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
-                          >
-                            +5
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(product.name, 'pcs', 10)}
-                            className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-amber-450 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
-                          >
-                            +10
+                            {qtyStep === 1 ? <Plus className="w-3 h-3" /> : <span className="text-[9px] font-black">+{qtyStep}</span>}
                           </button>
                         </div>
                       </td>
@@ -906,38 +897,24 @@ export default function App() {
                             {size} Box
                           </span>
 
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => updateQuantity(product.name, size, -1)}
+                              onClick={() => updateQuantity(product.name, size, -qtyStep)}
                               className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all active:scale-90 ${
-                                qty > 0 ? 'bg-neutral-900 border-neutral-700 text-neutral-350' : 'bg-neutral-955 border-neutral-900 text-neutral-800 cursor-not-allowed'
+                                qty > 0 ? 'bg-neutral-900 border-neutral-700 text-neutral-350 hover:bg-neutral-850' : 'bg-neutral-955 border-neutral-900 text-neutral-800 cursor-not-allowed'
                               }`}
                               disabled={qty === 0}
                             >
-                              <Minus className="w-3 h-3" />
+                              {qtyStep === 1 ? <Minus className="w-3 h-3" /> : <span className="text-[10px] font-bold">-{qtyStep}</span>}
                             </button>
                             <span className={`w-6 text-center text-sm font-black ${qty > 0 ? 'text-emerald-400' : 'text-neutral-655'}`}>{qty}</span>
                             <button
                               type="button"
-                              onClick={() => updateQuantity(product.name, size, 1)}
-                              className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90 border-neutral-750"
+                              onClick={() => updateQuantity(product.name, size, qtyStep)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90 border-neutral-750 hover:bg-neutral-800"
                             >
-                              <Plus className="w-3 h-3" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(product.name, size, 5)}
-                              className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-emerald-450 active:scale-90 border-neutral-750"
-                            >
-                              +5
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(product.name, size, 10)}
-                              className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-emerald-450 active:scale-90 border-neutral-750"
-                            >
-                              +10
+                              {qtyStep === 1 ? <Plus className="w-3 h-3" /> : <span className="text-[10px] font-bold">+{qtyStep}</span>}
                             </button>
                           </div>
                         </div>
@@ -952,38 +929,24 @@ export default function App() {
                         Pieces (Loose Pcs)
                       </span>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => updateQuantity(product.name, 'pcs', -1)}
+                          onClick={() => updateQuantity(product.name, 'pcs', -qtyStep)}
                           className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all active:scale-90 ${
-                            rowPieces > 0 ? 'bg-neutral-900 border-neutral-700 text-neutral-350' : 'bg-neutral-955 border-neutral-900 text-neutral-800 cursor-not-allowed'
+                            rowPieces > 0 ? 'bg-neutral-900 border-neutral-700 text-neutral-350 hover:bg-neutral-850' : 'bg-neutral-955 border-neutral-900 text-neutral-800 cursor-not-allowed'
                           }`}
                           disabled={rowPieces === 0}
                         >
-                          <Minus className="w-3 h-3" />
+                          {qtyStep === 1 ? <Minus className="w-3 h-3" /> : <span className="text-[10px] font-bold">-{qtyStep}</span>}
                         </button>
                         <span className={`w-6 text-center text-sm font-black ${rowPieces > 0 ? 'text-amber-400' : 'text-neutral-655'}`}>{rowPieces}</span>
                         <button
                           type="button"
-                          onClick={() => updateQuantity(product.name, 'pcs', 1)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90 border-neutral-750"
+                          onClick={() => updateQuantity(product.name, 'pcs', qtyStep)}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90 border-neutral-750 hover:bg-neutral-800"
                         >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(product.name, 'pcs', 5)}
-                          className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-amber-500 active:scale-90 border-neutral-750"
-                        >
-                          +5
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(product.name, 'pcs', 10)}
-                          className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-amber-500 active:scale-90 border-neutral-750"
-                        >
-                          +10
+                          {qtyStep === 1 ? <Plus className="w-3 h-3" /> : <span className="text-[10px] font-bold">+{qtyStep}</span>}
                         </button>
                       </div>
                     </div>
