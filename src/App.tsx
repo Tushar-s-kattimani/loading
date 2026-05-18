@@ -608,14 +608,14 @@ export default function App() {
                   </th>
                   {/* Standard Box columns */}
                   {uniqueSizes.map(size => (
-                    <th key={size} className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[98px]">
+                    <th key={size} className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[140px]">
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-400">
                         {size} Bx
                       </span>
                     </th>
                   ))}
                   {/* SINGLE PIECES COLUMN IN FRONT OF TOTAL */}
-                  <th className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[98px] border-l border-neutral-800">
+                  <th className="p-2.5 font-black text-[10px] uppercase tracking-wider text-neutral-450 text-center w-[140px] border-l border-neutral-800">
                     <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/10 text-amber-400">
                       Pieces (Pcs)
                     </span>
@@ -679,7 +679,7 @@ export default function App() {
                         
                         if (!hasSize) {
                           return (
-                            <td key={size} className="p-2 text-center w-[98px]">
+                            <td key={size} className="p-2 text-center w-[140px]">
                               <span className="text-neutral-850 font-bold select-none text-[10px]">—</span>
                             </td>
                           );
@@ -688,8 +688,8 @@ export default function App() {
                         const key = `${product.name}_${size}`;
                         const qty = currentDraft[key] || 0;
                         return (
-                          <td key={size} className="p-2 text-center w-[98px]">
-                            <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all ${
+                          <td key={size} className="p-2 text-center w-[140px]">
+                            <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all gap-1 ${
                               qty > 0 ? 'bg-neutral-955 border-emerald-500/30' : 'bg-neutral-955/50 border-neutral-850'
                             }`}>
                               <button
@@ -716,14 +716,30 @@ export default function App() {
                               >
                                 <Plus className="w-3 h-3" />
                               </button>
+
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(product.name, size, 5)}
+                                className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-emerald-450 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
+                              >
+                                +5
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(product.name, size, 10)}
+                                className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-emerald-450 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
+                              >
+                                +10
+                              </button>
                             </div>
                           </td>
                         );
                       })}
 
                       {/* SINGLE PIECES ADJUSTER IN FRONT OF TOTAL (PEACES) */}
-                      <td className="p-2 text-center w-[98px] border-l border-neutral-800 bg-amber-500/5">
-                        <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all ${
+                      <td className="p-2 text-center w-[140px] border-l border-neutral-800 bg-amber-500/5">
+                        <div className={`inline-flex items-center justify-center p-1 rounded-xl border transition-all gap-1 ${
                           rowPieces > 0 ? 'bg-neutral-955 border-amber-500/30' : 'bg-neutral-955/50 border-neutral-850'
                         }`}>
                           <button
@@ -749,6 +765,22 @@ export default function App() {
                             className={`w-7 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-white hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750 text-neutral-550`}
                           >
                             <Plus className="w-3 h-3" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(product.name, 'pcs', 5)}
+                            className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-amber-500 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
+                          >
+                            +5
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(product.name, 'pcs', 10)}
+                            className="px-1.5 h-7 rounded-lg flex items-center justify-center border bg-neutral-900 text-[10px] font-black text-amber-450 hover:bg-neutral-800 active:scale-90 transition-all border-neutral-750"
+                          >
+                            +10
                           </button>
                         </div>
                       </td>
@@ -874,7 +906,7 @@ export default function App() {
                             {size} Box
                           </span>
 
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => updateQuantity(product.name, size, -1)}
@@ -889,9 +921,23 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => updateQuantity(product.name, size, 1)}
-                              className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90 border-neutral-750"
                             >
                               <Plus className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(product.name, size, 5)}
+                              className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-emerald-450 active:scale-90 border-neutral-750"
+                            >
+                              +5
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(product.name, size, 10)}
+                              className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-emerald-450 active:scale-90 border-neutral-750"
+                            >
+                              +10
                             </button>
                           </div>
                         </div>
@@ -906,7 +952,7 @@ export default function App() {
                         Pieces (Loose Pcs)
                       </span>
 
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => updateQuantity(product.name, 'pcs', -1)}
@@ -924,6 +970,20 @@ export default function App() {
                           className="w-8 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-white active:scale-90 border-neutral-750"
                         >
                           <Plus className="w-3 h-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(product.name, 'pcs', 5)}
+                          className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-amber-500 active:scale-90 border-neutral-750"
+                        >
+                          +5
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(product.name, 'pcs', 10)}
+                          className="px-2 h-8 rounded-lg flex items-center justify-center border bg-neutral-900 text-xs font-black text-amber-500 active:scale-90 border-neutral-750"
+                        >
+                          +10
                         </button>
                       </div>
                     </div>
