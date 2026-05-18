@@ -473,13 +473,15 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 self-end sm:self-auto">
-            {/* Desktop Totals Display */}
-            <div className="hidden md:flex items-center gap-2 bg-neutral-950 border border-neutral-800 px-3 py-1 rounded-xl">
-              <Package className="w-4.5 h-4.5 text-emerald-400" />
+          <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+            {/* Responsive Totals Display (Visible on both Mobile and Desktop) */}
+            <div className="flex items-center gap-2 bg-neutral-950 border border-neutral-800 px-3 py-1 rounded-xl shadow-inner">
+              <Package className="w-4 h-4 text-emerald-400" />
               <div className="text-right">
-                <span className="text-neutral-500 text-[8px] font-bold uppercase tracking-wider block">Total Items Loaded</span>
-                <span className="text-emerald-400 text-sm font-black tracking-tight leading-none">{totalCrates} Bx / {totalPiecesSum} Loose</span>
+                <span className="text-neutral-500 text-[8px] font-bold uppercase tracking-wider block leading-none mb-0.5">Total Load</span>
+                <span className="text-emerald-400 text-xs sm:text-sm font-black tracking-tight leading-none">
+                  {totalCrates} Bx <span className="text-neutral-600 font-bold mx-0.5">/</span> {totalPiecesSum} Pcs
+                </span>
               </div>
             </div>
           </div>
@@ -976,6 +978,18 @@ export default function App() {
                 </div>
               ) : (
                 <div className="space-y-3.5">
+                  {/* Grand Total Load Cards in App Sidebar */}
+                  <div className="grid grid-cols-2 gap-2 bg-neutral-955 border border-neutral-850 p-2.5 rounded-2xl shadow-inner">
+                    <div className="bg-emerald-500/5 border border-emerald-500/10 p-2 rounded-xl text-center">
+                      <span className="text-neutral-500 text-[8px] font-black uppercase tracking-wider block mb-0.5">Total Crates</span>
+                      <span className="text-emerald-400 text-sm font-black tracking-tight">{totalCrates} Bx</span>
+                    </div>
+                    <div className="bg-amber-500/5 border border-amber-500/10 p-2 rounded-xl text-center">
+                      <span className="text-neutral-550 text-[8px] font-black uppercase tracking-wider block mb-0.5">Total Pieces</span>
+                      <span className="text-amber-500 text-sm font-black tracking-tight">{totalPiecesSum} Pcs</span>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <p className="text-[9px] text-neutral-500 uppercase font-black tracking-widest">{loadType} Details</p>
                     
@@ -1344,6 +1358,18 @@ export default function App() {
                 <div className="text-emerald-600 font-black text-base uppercase leading-none load-highlight">{loadType}</div>
                 <div className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider mt-1.5">Generated Date</div>
                 <div className="text-xs font-bold text-neutral-800 print-date">{new Date().toLocaleString()}</div>
+              </div>
+            </div>
+
+            {/* Dynamic Bold Total Load Summary Boxes for PDF */}
+            <div className="flex gap-4 mb-6" style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+              <div className="flex-1 p-3 rounded" style={{ flex: '1', padding: '12px', borderRadius: '8px', backgroundColor: '#f1f5f9', border: '2.5px solid black' }}>
+                <div style={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', color: '#475569', letterSpacing: '0.5px', marginBottom: '4px' }}>TOTAL CRATES / BOXES LOADED</div>
+                <div style={{ fontSize: '20px', fontWeight: '950', color: '#0f172a', lineHeight: '1' }}>{totalCrates} Bx</div>
+              </div>
+              <div className="flex-1 p-3 rounded" style={{ flex: '1', padding: '12px', borderRadius: '8px', backgroundColor: '#fffbeb', border: '2.5px solid black' }}>
+                <div style={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', color: '#b45309', letterSpacing: '0.5px', marginBottom: '4px' }}>TOTAL LOOSE PIECES LOADED</div>
+                <div style={{ fontSize: '20px', fontWeight: '950', color: '#78350f', lineHeight: '1' }}>{totalPiecesSum} Pcs</div>
               </div>
             </div>
 
