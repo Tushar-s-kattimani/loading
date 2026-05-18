@@ -1217,7 +1217,8 @@ export default function App() {
                 background: white !important;
                 color: black !important;
                 margin: 0 !important;
-                padding: 10px !important;
+                padding: 20px !important;
+                font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
               }
               /* Completely hide main application wrapper to avoid overlapping pages */
               #root > div:not(#print-section) {
@@ -1232,30 +1233,105 @@ export default function App() {
                 background: white !important;
                 color: black !important;
               }
+              .print-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin-top: 25px !important;
+                margin-bottom: 25px !important;
+                font-size: 14px !important;
+              }
+              .print-table th {
+                border: 2.5px solid #000000 !important;
+                padding: 12px 8px !important;
+                background-color: #f1f5f9 !important; /* Slate 100 */
+                color: #000000 !important;
+                font-weight: 900 !important;
+                text-transform: uppercase !important;
+                text-align: center !important;
+                font-size: 11px !important;
+                letter-spacing: 0.5px !important;
+              }
+              .print-table th.product-header {
+                text-align: left !important;
+                width: 25% !important;
+              }
+              .print-table td {
+                border: 2px solid #000000 !important;
+                padding: 14px 10px !important;
+                color: #000000 !important;
+                font-weight: 800 !important; /* Bold letters & numbers */
+                text-align: center !important;
+                font-size: 13px !important;
+              }
+              .print-table td.product-cell {
+                text-align: left !important;
+                font-weight: 900 !important;
+                background-color: #f8fafc !important; /* Slate 50 */
+                text-transform: uppercase !important;
+              }
+              .print-table td.loose-cell {
+                background-color: #fef3c7 !important; /* Amber 100 */
+                color: #000000 !important;
+                font-weight: 900 !important;
+              }
+              .print-table .total-row td {
+                border: 3px solid #000000 !important;
+                font-weight: 950 !important;
+                font-size: 14px !important;
+                background-color: #ecfdf5 !important; /* Emerald 50 */
+                color: #000000 !important;
+                padding: 16px 10px !important;
+              }
+              .print-table .total-row td.total-label {
+                background-color: #d1fae5 !important; /* Emerald 100 */
+                font-weight: 950 !important;
+              }
+              .print-table .total-row td.total-loose-cell {
+                background-color: #fde68a !important; /* Amber 200 */
+                border: 3px solid #000000 !important;
+                font-weight: 950 !important;
+              }
+              .print-header h1 {
+                font-weight: 900 !important;
+                letter-spacing: -0.5px !important;
+              }
+              .print-header p {
+                font-weight: 700 !important;
+              }
+              .load-highlight {
+                font-weight: 900 !important;
+                color: #047857 !important; /* Emerald 700 */
+                border-bottom: 2px solid #047857 !important;
+                padding-bottom: 2px !important;
+              }
+              .print-date {
+                font-weight: 700 !important;
+                color: #1e293b !important;
+              }
             }
           `}} />
           <div id="print-section" className="hidden print:block bg-white text-black p-8 w-full font-sans absolute left-0 top-0 z-50">
-            <div className="flex justify-between items-center border-b-4 border-emerald-500 pb-4 mb-6">
+            <div className="flex justify-between items-center border-b-4 border-emerald-500 pb-4 mb-6 print-header">
               <div>
                 <h1 className="text-2xl font-black uppercase tracking-tight text-neutral-900">VAN LOAD ORDER SHEET</h1>
                 <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">Fast Crate & Bottle Loading Report</p>
               </div>
               <div className="text-right">
                 <div className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Selected Load</div>
-                <div className="text-emerald-600 font-black text-base uppercase leading-none">{loadType}</div>
+                <div className="text-emerald-600 font-black text-base uppercase leading-none load-highlight">{loadType}</div>
                 <div className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider mt-1.5">Generated Date</div>
-                <div className="text-xs font-bold text-neutral-800">{new Date().toLocaleString()}</div>
+                <div className="text-xs font-bold text-neutral-800 print-date">{new Date().toLocaleString()}</div>
               </div>
             </div>
 
-            <table className="w-full border-collapse border border-neutral-200">
+            <table className="print-table">
               <thead>
-                <tr className="bg-neutral-50">
-                  <th className="border border-neutral-200 p-2.5 text-left text-[10px] font-black uppercase text-neutral-600 w-[30%]">Product</th>
+                <tr>
+                  <th className="product-header">Product</th>
                   {uniqueSizes.map(size => (
-                    <th key={size} className="border border-neutral-200 p-2 text-center text-[10px] font-black uppercase text-neutral-600">{size} Box</th>
+                    <th key={size}>{size} Box</th>
                   ))}
-                  <th className="border border-neutral-200 p-2 text-center text-[10px] font-black uppercase text-amber-700 bg-amber-50/50 w-[15%]">Loose (Pcs)</th>
+                  <th>Loose (Pcs)</th>
                 </tr>
               </thead>
               <tbody>
@@ -1267,16 +1343,16 @@ export default function App() {
                   const pieces = currentDraft[`${p.name}_pcs`] || 0;
                   return (
                     <tr key={p.name}>
-                      <td className="border border-neutral-200 p-2.5 text-xs font-black uppercase text-neutral-800 bg-neutral-50">{p.name}</td>
+                      <td className="product-cell">{p.name}</td>
                       {uniqueSizes.map(size => {
                         const qty = currentDraft[`${p.name}_${size}`] || 0;
                         return (
-                          <td key={size} className={`border border-neutral-200 p-2 text-center text-xs font-bold ${qty > 0 ? 'text-neutral-900' : 'text-neutral-400'}`}>
+                          <td key={size}>
                             {qty > 0 ? qty : '—'}
                           </td>
                         );
                       })}
-                      <td className={`border border-neutral-200 p-2 text-center text-xs font-black bg-amber-50 ${pieces > 0 ? 'text-amber-800' : 'text-neutral-400'}`}>
+                      <td className="loose-cell">
                         {pieces > 0 ? pieces : '—'}
                       </td>
                     </tr>
@@ -1284,17 +1360,17 @@ export default function App() {
                 })}
                 
                 {/* Grand totals row */}
-                <tr className="bg-neutral-50 font-black">
-                  <td className="border-2 border-neutral-900 p-2.5 text-xs font-black uppercase text-neutral-900">TOTAL LOAD</td>
+                <tr className="total-row">
+                  <td className="total-label">TOTAL LOAD</td>
                   {uniqueSizes.map(size => {
                     let sizeTotal = productList.reduce((sum, p) => sum + (currentDraft[`${p.name}_${size}`] || 0), 0);
                     return (
-                      <td key={size} className="border-2 border-neutral-900 p-2 text-center text-xs font-black text-emerald-600 bg-emerald-50/30">
+                      <td key={size}>
                         {sizeTotal} Bx
                       </td>
                     );
                   })}
-                  <td className="border-2 border-amber-600 p-2 text-center text-xs font-black text-amber-700 bg-amber-50">
+                  <td className="total-loose-cell">
                     {totalPiecesSum} Pcs
                   </td>
                 </tr>
